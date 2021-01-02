@@ -1,0 +1,47 @@
+const { MessageEmbed } = require("discord.js")
+const db = require('quick.db');
+module.exports.run = async (client, message, users, args) => {
+
+    if(!message.member.roles.cache.some(r => ['790861621685256212', '790861621648031771'].includes(r.id)) && (!message.member.hasPermission("ADMINISTRATOR")))
+    return message.channel.send("Bu Komutu Kullanmak İçin Yetkiniz Bulunmamakta.")
+    
+//------------------------------------------------KAYITLAR-----------------------------------------------\\  
+
+let user = message.guild.member(message.mentions.members.first() || message.guild.members.cache.get(args[0]));
+let isim = message.mentions.members.first() || message.guild.members.get(args[0]);
+var sayi = 1 
+let data = db.get(`isim.${message.guild.id}`)
+let rol = db.fetch(`rol.${message.guild.id}`)
+if(!data) return message.channel.send(new MessageEmbed()
+    .setColor("0x2f3136") 
+    .setThumbnail(user.user.avatarURL ({ dynamic: true}))      
+    .setDescription(`
+    ${isim} Adlı Kullanıcı Daha Önce Kayıt Olmamış.`)
+    .setColor("0x2f3136"))
+let isimler = data.filter(x => x.userID === isim.id).map(x => `${sayi++}- \`• ${x.isim} | ${x.yas}\`  (<@&${rol}>)\n`).join("\n")
+if(isimler === null) isimler = "Kullanıcının isim geçmişi bulunmamaktadır"
+if(isimler === undefined) isimler = "Kullanıcının isim geçmişi bulunmamaktadır"
+//------------------------------------------------KAYITLAR-----------------------------------------------\\      
+
+
+const embed = new MessageEmbed()
+.setColor("0x2f3136")
+        .setThumbnail(user.user.avatarURL ({ dynamic: true}))     
+    .setAuthor(`Bu kullanıcı ${sayi-1} kere kayıt olmuş`) 
+    .setDescription(`${isimler}`)
+    .setColor("0x2f3136")
+message.channel.send(embed)
+}
+
+
+exports.conf = {
+  enabled: true,
+  guildOnly: false,
+  aliases: ['isimler', 'eski-isim'],
+  permLevel: 0,
+}
+
+exports.help = {
+      name: "isimler"
+  
+}
